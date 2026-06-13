@@ -1,0 +1,33 @@
+# KS Launcher — Installer Return Codes Reference
+
+This document provides a comprehensive list of execution exit codes, return values, and behavior types for the KS Launcher installer (`KS-Launcher-Setup-1.0.0.exe`). These codes are mapped to standard Win32 system errors and are utilized by the Microsoft Store / Partner Center deployment engines to track installation health.
+
+## Return Codes Mapping Table
+
+When configuring deployment workflows or filling out the **Return codes** table in the Microsoft Partner Center, use the following values to classify installer behavior:
+
+| Exit Code (Decimal) | Exit Code (Hex) | Microsoft Store Code Type | Scenario / Meaning | Description & Expected System Behavior |
+| :--- | :--- | :--- | :--- | :--- |
+| **0** | `0x00000000` | **Success** | Installation successful | The installer completed all operations cleanly. The application is ready to launch. |
+| **183** | `0x000000B7` | **Success** | Application already exists | The launcher is already installed on the target device. Prevents an error loop. |
+| **1** or **1602** | `0x00000642` | **Failed** | Installation cancelled by user | The setup wizard was manually aborted or closed by the client before completion. |
+| **112** | `0x00000070` | **Failed** | Disk space is full | The target storage drive ran out of space during installation payload extraction. |
+| **1618** | `0x00000652` | **Retry** | Installation already in progress | Another system installer is active. Tells the OS to pause and retry after 5 minutes. |
+| **1625** | `0x00000659` | **Failed** | Package rejected during install | Installation blocked by system security policy (e.g., AppLocker, SmartScreen, Group Policy). |
+| **3010** | `0x00000BC2` | **Soft reboot** | Reboot required (Soft) | The application installed successfully, but configuration requires a standard OS restart. |
+| **1641** | `0x00000669` | **Hard reboot** | Reboot required (Hard) | The installer requires an immediate, forced system restart to preserve operational integrity. |
+| **12002** | `0x00002EE2` | **Retry** | Network failure: Timeout | The connection timed out while attempting to reach remote deployment or update assets. |
+| **12029** | `0x00002EFD` | **Retry** | Network failure: Cannot connect | No active web gateway detected, or the remote host endpoint dropped the handshake. |
+| **12150** | `0x00002F76` | **Failed** | Network failure: 404 Not Found | Remote connection succeeded, but the requested server resource or download payload was missing. |
+| **1603** | `0x00000643` | **Failed** | General fatal error | Catch-all runtime exception. Indicates an unexpected internal setup framework failure. |
+
+---
+
+## How to Test Return Codes Locally
+
+To manually verify how the installer exits under different conditions, run the setup package from a terminal interface (Command Prompt or PowerShell) and catch the exit level output.
+
+### In Windows Command Prompt (cmd):
+```cmd
+"KS-Launcher-Setup-1.0.0.exe" /S
+echo %errorlevel%
